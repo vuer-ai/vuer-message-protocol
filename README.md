@@ -81,17 +81,35 @@ Now looking at this example, I should be able to change it to component-scoped h
 { etype: "MOVABLE:{component-key}", data: {...} }
 ```
 
-**migration strategy** Let's start moving component events to the new format. And while we are doing this, we can build a new component-scoped event handling setup for a better developer experience. `etype` is equivalent to queue names in zaku.
+### Migration strategy
+
+Let's start moving component events to the new format. And while we are doing this, we can build a new component-scoped event handling setup for a better developer experience. `etype` is equivalent to queue names in zaku.
 
 ### Request ID
 
-Each RPC request creates a new, unique queue for its response. Therefore response type; queue, or response ID is not different from each other.
+Each RPC request creates a new, unique queue for its response. Therefore, response type, queue, and response ID are not distinguishable from each other.
 
 I will use the general framework of response queue for this as well (as it should). I think the etype nomenclature is abusive because type shall not contain component instance id. However, in a generalized framework where each object has its own route, this is okay. `eventKey` is too redusive. `eventType` is too rigid. The messaging envelop is not specific to RPC, therefore it should not be called `request***`. 
 
 If we consider this to be an event, and that is the event markup, then eventType with slightly abused postfix of the component id is a good choice.
 
-the `useEvent("MOVABLE", "()=> {})` handler will be scoped by the component tag. 
+the `useEvent("MOVABLE", ()=> {})` handler will be scoped by the component tag. 
+
+### Zaku RPC with This New Design
+
+At the moment the `etype` attribute is not needed. This will change once we start adding more complex object actions
+in the updated zaku for stateful workers. Including the worker ID, which is needed for subsequent requests to identify the right worker that holds the state.
+
+```python
+job = { ts: time.now(), etype: None, value: {_args, **kwargs} }
+
+queue.push(job)
+```
+The `"_args"` key is similar to the `args` key in the vuer components. We can consider this a dialect for zaku, the same way that `args` is a dialect for react-three/fiber (R3F).
+
+## Details on Current Vuer and Zaku Message Designs
+
+We study if these two schemas can or should be unified.
 
 ### 1. Vuer's Event-Based RPC
 
