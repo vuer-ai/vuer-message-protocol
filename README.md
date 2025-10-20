@@ -14,192 +14,224 @@ vuer-message-protocol/
 └── protocol/         # Shared protocol definitions
 ```
 
-## Data Serialization Format
+VMP uses MessagePack for efficient binary serialization and transport with `Content-Type: application/msgpack`.
+MessagePack provides compact binary encoding while maintaining cross-language compatibility.
 
-VMP uses message pack for efficient binary serialization.
+## Serializing Tensor Data in Python with ZData
 
-- **MessagePack** encoding for efficient binary serialization
-- **Data wrapper** for complex data types:
-    - NumPy arrays (with shape and dtype metadata)
-    - PyTorch tensors
-    - PIL images
-    - Base64-encoded binary data
-- Transport with `Content-Type: application/msgpack`
+ZData (Zaku Data) is a wrapper format for encoding custom data types including NumPy arrays, PyTorch tensors, and PIL
+images. The schema uses `ztype` as the discriminator field to avoid naming collisions with the existing `dtype` property
+from NumPy and PyTorch.
 
-### Vuer Event Messages
+```typescript
+// ZData wrapper format for special data types in Zaku
+type ZData =
+  | { ztype: "image"; b: Uint8Array }
+  | { ztype: "numpy.ndarray"; b: Uint8Array; dtype: string; shape: number[] }
+  | { ztype: "torch.Tensor"; b: Uint8Array; dtype: string; shape: number[] }
+```
 
-The vuer message contains a timestamp (ts), event type (etype), server payload (data), client payload (value), and
-response ID.
+**Design Rationale**: The `ztype` field indicates what kind of object was encoded, while `dtype` retains its original
+meaning from NumPy/PyTorch to specify the element data type. NumPy dtype objects aren't serializable, so they are
+converted to string representations (e.g., `"float32"`, `"int64"`, `"uint8"`, `"complex128"`) for transport. NumPy's
+`frombuffer()` accepts these string dtype specifications and reconstructs the proper type.
+
+**Examples**:
+
+- NumPy array: `{ztype: "numpy.ndarray", b: <binary>, dtype: "float32", shape: [224, 224, 3]}`
+- PyTorch tensor: `{ztype: "torch.Tensor", b: <binary>, dtype: "int64", shape: [1, 512]}`
+
+## Serializing Vuer Components
+
+The vuer component schema is a (mostly) nested dictionary of key-value pairs. The keys are strings and the values are
+arbitrary data types. The component looks like this:
+
+<table>
+<tr>
+<th>Component Schema</th>
+<th>Allowed Value Types</th>
+</tr>
+<tr>
+<td>
+
+```typescript
+interface VuerComponent {
+  tag: string;
+  children: VuerComponent[];
+  
+  [key: string]: unknown
+}
+```
+
+</td>
+<td>
+
+<code>string</code> | <code>number</code> | <code>boolean</code><br/>
+<code>null</code> | <code>object</code> | <code>array</code><br/>
+<code>ZData</code>
+
+</td>
+</tr>
+</table>
+
+## Vuer Message Envelopes
 
 ```typescript
 interface Message {
-    ts: number;
-    etype: string;  // event type or the message queue name
-    rtype?: string; // used for RPC
-    data?: any;
-    value?: any;
+  ts: number;                       // timestamp
+  etype: string;                    // event type or queue name
+  rtype?: string;                   // response type (RPC)
+  args?: any[];                     // positional arguments for RPC
+  kwargs?: { [key: string]: any };  // keyword arguments
+  data?: any;                       // server payload
+  value?: any;                      // client payload
 }
-```
 
-```typescript
 interface ClientEvent {
-    ts: number;
-    etype: string;
-    rtype?: string;
-    value: any;
+  ts: number;       // timestamp
+  etype: string;    // event type
+  rtype?: string;   // response type (RPC)
+  value: any;       // client payload
 }
-```
 
-```typescript
 interface ServerEvent {
-    ts: number;
-    etype: string;
-    data: any;
+  ts: number;       // timestamp
+  etype: string;    // event type
+  data: any;        // server payload
 }
 ```
 
-## Remote Procedural Call
+### Vuer Events
 
-There are two RPC patterns. In vuer, requests are typed by event types. Whereas in Zaku the minimum unit of
-communication is a messaging containing a payload. There is no well-defined event type similar to the vuer messages. In
-vuer, the RPC is a special type of event that contains the response event type, so that the client or the server can
-specify the response it is looking for.
+The vuer message contains a timestamp (ts), event type (etype), server payload (data), and client payload (value).
 
-- In vuer:
-    - `etype` is `EVENT_KEY` and `data` is the server request payload.
-    - `rtype` is `EVENT_KEY_RESPONSE` and `value` is the client response payload.
-- In Zaku: `etype` is `QUEUE_NAME:{key}` and `value` is the request payload.
-  - <span class="text: red">Ge:</span> return results in `data` field. And use the standard
-    `etype` and `rtype` for the routing in zaku.
-  - if you want protected fields, use "$[A-z]+" for the event types.
-- If I want nested structure, for instance `[ component type, id, method name ]`, I should use `:` to separate them. This will make the notation consistent between the redis-backed zaku while also offering better readability on the front end where we use screaming snake case. 
+<table>
+<tr>
+<th>Message (Base)</th>
+<th>ClientEvent</th>
+<th>ServerEvent</th>
+</tr>
+<tr>
+<td>
 
-Now looking at this example, I should be able to change it to component-scoped handling instead. The colons offer a natural way to do prefix matching. In general, how we choose the event type string is in the user space.
+Generic message envelope with all possible fields
+
+</td>
+<td>
+
+Client-to-server events with `value` payload
+
+</td>
+<td>
+
+Server-to-client events with `data` payload
+
+</td>
+</tr>
+</table>
+
+### Remote Procedural Call
+
+<table>
+<tr>
+<th>RPC_Request</th>
+<th>RPC_Response</th>
+</tr>
+<tr>
+<td>
+
+RPC request with `rtype` specifying response event type. Includes optional `args` and `kwargs` fields.
+
+</td>
+<td>
+
+RPC response where `etype` matches the request's `rtype`. Returns payload in `data` (server) or `value` (client).
+
+</td>
+</tr>
+</table>
+
+**Vuer** uses a client-server architecture where RPC requests contain both `etype` (event type) and `rtype` (response
+type). The response rotates `rtype` to become its `etype` on the return trip. Both client and server can initiate RPC
+requests, with clients using the `value` field for payloads and servers using `data`. RPC requests have the additional
+`args: any[]` field for positional arguments, and `kwargs: { [key: string]: any }` for keyword arguments.
+
 ```typescript
+// Component-scoped Client Event
 { etype: "MOVABLE:{component-key}", value: {...} }
-# or--
-{ etype: "MOVABLE:{component-key}", data: {...} }
+
+// Server Event
+{ etype: "UPDATE", data: {...} }
+
+// Server-to-client RPC event
+{ etype: "CAMERA:{component-key}", rtype: "RESPONSE:{request_id}", kwargs: {...} }
+
+// RPC Response
+{ etype: "RESPONSE:{component-key}", value: {...}, ok: true, error: null }
+
+// Hierarchical queue name in Zaku -- includes the args array.
+{ etype: "WORKER_POOL:render:task-123", rtype: "{uuid}", args: [...], kwargs: {...} }
 ```
 
-### Migration strategy
+VMP uses hierarchical naming with `:` separating components (e.g., `MOVABLE:{component-key}:UPDATE`). All event types follow screaming snake case with uppercase and underscores (e.g., `SERVER_RPC`, `GRAB_RENDER`). The colon separator enables natural prefix matching in Redis queries and component-scoped event handlers. Event types are namespaced by component type and instance ID (the component key).
 
-Let's start moving component events to the new format. And while we are doing this, we can build a new component-scoped event handling setup for a better developer experience. `etype` is equivalent to queue names in zaku.
+**Zaku** relies on long-lived Redis queues for most of its async operations. In this case, routing is determined by the
+name of the queue, which is usually set up prior to the request. Therefore, zaku RPC does not currently rely on `etype`,
+but this will change when we introduce more complex object actions. For instance, a stateful worker that has multiple
+life-cycle methods. In this case the `etype` will look like `QUEUE_NAME:{method-name}` where the `$QUEUE_NAME` is
+postfixed with the worker ID or class name. Request payload will again be placed in the `value` field, while response
+payloads use the `data` field (renamed from `_results`). We currently use `_request_id` for the response queue name. But
+request types can be globally namespaced.
 
-### Request ID
-
-Each RPC request creates a new, unique queue for its response. Therefore, response type, queue, and response ID are not distinguishable from each other.
-
-I will use the general framework of response queue for this as well (as it should). I think the etype nomenclature is abusive because type shall not contain component instance id. However, in a generalized framework where each object has its own route, this is okay. `eventKey` is too redusive. `eventType` is too rigid. The messaging envelop is not specific to RPC, therefore it should not be called `request***`. 
-
-If we consider this to be an event, and that is the event markup, then eventType with slightly abused postfix of the component id is a good choice.
-
-the `useEvent("MOVABLE", ()=> {})` handler will be scoped by the component tag. 
-
-### Zaku RPC with This New Design
-
-At the moment the `etype` attribute is not needed. This will change once we start adding more complex object actions
-in the updated zaku for stateful workers. Including the worker ID, which is needed for subsequent requests to identify the right worker that holds the state.
-
-```python
-job = { ts: time.now(), etype: None, value: {_args, **kwargs} }
-
-queue.push(job)
-```
-The `"_args"` key is similar to the `args` key in the vuer components. We can consider this a dialect for zaku, the same way that `args` is a dialect for react-three/fiber (R3F).
-
-## Details on Current Vuer and Zaku Message Designs
-
-We study if these two schemas can or should be unified.
-
-### 1. Vuer's Event-Based RPC
-
-Not all components contain events, and each component may have multiple events. 
-We use screaming snake case for event types. The rtypes are single-use event
-types for the response.
-
-```typescript
-interface ServerRPC {
-    etype: "SERVER_RPC@{key}";
-    rtype: "SERVER_RPC_RESPONSE@{uuid}";         // Request correlation ID
-}
-
-// response from the front end
-interface ServerRPCResponse {
-    etype: "SERVER_RPC_RESPONSE@{uuid}";         // Response correlation ID
-    value?: any;         // Success result
-    error?: string;       // Error message
-}
-```
-
-### 2. Zaku's Queue-Based RPC
-
-The transport in Zaku is a flat (no more than two levels) nested dictionary.
-This is because, to parse objects in-depth, we need to have a serialization
-strategy for each data type that we encounter. This is not a problem for the vuer-ts
-implementation because it only needs to serialize component definitions (we have full 
-control). This is, however, a problem for the python client in zaku.
-
-So the zaku RPC works as follows: it is a queue-based RPC. The queue name is
-the same as the key in the request payload. The response is the same as the
-request, except that the queue name is replaced with the response key.
-
-The packaging schema is different from the schema of the request in the queue.
-
-```python
-from typing import Any, NotRequired, TypedDict
-
-class ZakuRPCRequest(TypedDict):
-    # this should be renamed to "rtype". The queue name should be the "etype".
-    _request_id: str           # Single-use topic ID for the response (e.g., "rpc-{uuid}")
-    _args: NotRequired[list[Any]]  # Positional arguments (optional)
-    # Additional keyword arguments allowed via TypedDict total=False inheritance
-
-class ZakuRPCResponse(TypedDict, total=False):
-    # Worker can return any key-value pairs
-    # Published to the topic specified in _request_id
-    pass  # Flexible response structure
-```
+###
 
 **Example Usage:**
 
 Client side:
+
 ```python
 # Client makes RPC call
 result = queue.rpc(seed=100, _timeout=5)
 # Internally creates: {"_request_id": "rpc-{uuid}", "_args":[], "seed": 100}
 ```
 
-
 Worker side:
+
 ```python
 # Worker processes the job
 with queue.pop() as job:
-    topic = job.pop("_request_id")  # Extract response topic
-    # Process job...
-    queue.publish({"result": "good", **job}, topic=topic)
+  topic = job.pop("_request_id")  # Extract response topic
+  # Process job... then return the results as value
+  queue.publish({"value": "good", "ok": True, "error": None}, topic=topic)
 ```
 
 ## Vuer vs Zaku: Protocol Comparison
 
-The two implementations use fundamentally different message envelope designs, making unified serialization and RPC helpers challenging.
+The two implementations use fundamentally different message envelope designs, making unified serialization and RPC
+helpers challenging.
 
-| Aspect | Vuer (Event-Based) | Zaku (Queue-Based) | Implications |
-|--------|-------------------|-------------------|--------------|
-| **Routing Mechanism** | Event types (flat namespace)<br/>e.g., `"CLICK"`, `"RPC"` | Queue names (hierarchical)<br/>e.g., `"ZAKU_TEST:debug-queue-1"` | Zaku supports namespace hierarchy, Vuer relies on flat event names |
-| **Message Envelope** | **Nested structure:**<br/>Client: `{ts, etype, key?, value?}`<br/>Server: `{ts, etype, data}` | **Flat structure:**<br/>`{_request_id, _args?, ...kwargs}` | Vuer separates server/client payloads with dedicated fields; Zaku mixes metadata and payload at same level |
-| **Payload Structure** | • `data`: Server → Client payload<br/>• `value`: Client → Server payload<br/>• Deep nesting supported | • All fields flattened at top level<br/>• No envelope/payload distinction<br/>• Metadata (`_request_id`, `_args`) mixed with data | Vuer provides clean separation; Zaku optimized for Redis field-based search |
-| **Serialization (Python)** | **Recursive multi-level:**<br/>• `serializer()` walks nested structures<br/>• Calls `._serialize()` on objects<br/>• Recursively processes lists/tuples<br/>• No special type handling | **Flat single-level:**<br/>• `Payload.serialize()` iterates top-level keys<br/>• `ZData.encode()` per value<br/>• Handles numpy, torch, PIL images<br/>• **Does NOT recurse into nested dicts** | Vuer can serialize arbitrary component trees; Zaku trades depth for numpy/torch support and Redis searchability |
-| **Serialization (Transport)** | **msgpackr** (TypeScript)<br/>**msgpack** (Python)<br/>Direct object packing | **msgpack** (Python only)<br/>Pre-processes with ZData encoding | Both use MessagePack, but Vuer relies on native msgpack features while Zaku wraps with custom type handling |
-| **RPC Correlation** | • Request: `uuid` + `rtype` fields<br/>• Response: Event type matches `rtype`<br/>• Example: `rtype="RPC_RESPONSE@{uuid}"` | • Request: `_request_id` field<br/>• Response: Publish to topic `_request_id`<br/>• Example: `"rpc-{uuid}"` | Vuer uses typed events for correlation; Zaku uses pub/sub topics |
-| **Type Safety** | Event types define message schema<br/>TypeScript interfaces enforce structure | Queue names + payload keys define schema<br/>TypedDict for documentation only | Vuer has stronger client-side type checking; Zaku relies on runtime validation |
+| Aspect                        | Vuer (Event-Based)                                                                                                                                                                     | Zaku (Queue-Based)                                                                                                                                                                              | Implications                                                                                                    |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| **Routing Mechanism**         | Event types (flat namespace)<br/>e.g., `"CLICK"`, `"RPC"`                                                                                                                              | Queue names (hierarchical)<br/>e.g., `"ZAKU_TEST:debug-queue-1"`                                                                                                                                | Zaku supports namespace hierarchy, Vuer relies on flat event names                                              |
+| **Message Envelope**          | **Nested structure:**<br/>Client: `{ts, etype, key?, value?}`<br/>Server: `{ts, etype, data}`                                                                                          | **Flat structure:**<br/>`{_request_id, _args?, ...kwargs}`                                                                                                                                      | Vuer separates server/client payloads with dedicated fields; Zaku mixes metadata and payload at same level      |
+| **Payload Structure**         | • `data`: Server → Client payload<br/>• `value`: Client → Server payload<br/>• Deep nesting supported                                                                                  | • All fields flattened at top level<br/>• No envelope/payload distinction<br/>• Metadata (`_request_id`, `_args`) mixed with data                                                               | Vuer provides clean separation; Zaku optimized for Redis field-based search                                     |
+| **Serialization (Python)**    | **Recursive multi-level:**<br/>• `serializer()` walks nested structures<br/>• Calls `._serialize()` on objects<br/>• Recursively processes lists/tuples<br/>• No special type handling | **Flat single-level:**<br/>• `Payload.serialize()` iterates top-level keys<br/>• `ZData.encode()` per value<br/>• Handles numpy, torch, PIL images<br/>• **Does NOT recurse into nested dicts** | Vuer can serialize arbitrary component trees; Zaku trades depth for numpy/torch support and Redis searchability |
+| **Serialization (Transport)** | **msgpackr** (TypeScript)<br/>**msgpack** (Python)<br/>Direct object packing                                                                                                           | **msgpack** (Python only)<br/>Pre-processes with ZData encoding                                                                                                                                 | Both use MessagePack, but Vuer relies on native msgpack features while Zaku wraps with custom type handling     |
+| **RPC Correlation**           | • Request: `uuid` + `rtype` fields<br/>• Response: Event type matches `rtype`<br/>• Example: `rtype="RPC_RESPONSE@{uuid}"`                                                             | • Request: `_request_id` field<br/>• Response: Publish to topic `_request_id`<br/>• Example: `"rpc-{uuid}"`                                                                                     | Vuer uses typed events for correlation; Zaku uses pub/sub topics                                                |
+| **Type Safety**               | Event types define message schema<br/>TypeScript interfaces enforce structure                                                                                                          | Queue names + payload keys define schema<br/>TypedDict for documentation only                                                                                                                   | Vuer has stronger client-side type checking; Zaku relies on runtime validation                                  |
 
 **Key Tensions**:
 
-1. **Envelope Design**: Vuer's nested `{etype, data/value}` vs Zaku's flat `{_request_id, **payload}` prevents shared message handling
-2. **Serialization Depth**: Vuer's recursive serializer handles component trees; Zaku's single-level approach enables Redis field queries but cannot serialize deeply nested structures
-3. **Special Type Handling**: Zaku supports numpy/torch/PIL at top level; Vuer has no special handling (relies on user-side encoding)
+1. **Envelope Design**: Vuer's nested `{etype, data/value}` vs Zaku's flat `{_request_id, **payload}` prevents shared
+   message handling
+2. **Serialization Depth**: Vuer's recursive serializer handles component trees; Zaku's single-level approach enables
+   Redis field queries but cannot serialize deeply nested structures
+3. **Special Type Handling**: Zaku supports numpy/torch/PIL at top level; Vuer has no special handling (relies on
+   user-side encoding)
 
-**Next Steps**: Standardize serialization infrastructure before unifying message envelope formats. Current differences block generalized RPC helpers that work across both systems. Consider:
+**Next Steps**: Standardize serialization infrastructure before unifying message envelope formats. Current differences
+block generalized RPC helpers that work across both systems. Consider:
+
 - Adopting Zaku's `ZData` encoding in Vuer for numpy/torch support
 - Defining a common envelope format that supports both flat (Redis-searchable) and nested (component-tree) use cases
 
