@@ -20,13 +20,14 @@
 //!
 //! // Create a message
 //! let msg = Message::new("CLICK")
-//!     .with_value(json!({"x": 100, "y": 200}));
+//!     .with_data(json!("simple data"));
 //!
 //! // Serialize to MessagePack
 //! let bytes = serialize_message(&msg).unwrap();
 //!
 //! // Deserialize
 //! let restored: Message = deserialize_message(&bytes).unwrap();
+//! assert_eq!(msg.etype, restored.etype);
 //! ```
 //!
 //! # RPC Example
