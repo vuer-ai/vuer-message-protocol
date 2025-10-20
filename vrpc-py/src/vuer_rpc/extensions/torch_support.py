@@ -16,7 +16,7 @@ except ImportError:
     TORCH_AVAILABLE = False
     raise ImportError(
         "PyTorch is not installed. Install it with: "
-        "uv pip install 'vmp-py[torch]' or pip install torch"
+        "uv pip install 'vuer-rpc[torch]' or pip install torch"
     )
 
 

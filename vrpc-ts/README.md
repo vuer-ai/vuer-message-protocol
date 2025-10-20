@@ -1,4 +1,4 @@
-# @vuer-ai/vrpc
+# @vuer-ai/vuer-rpc
 
 TypeScript implementation of Vuer RPC (vRPC) - a lightweight, cross-language messaging and RPC protocol.
 
@@ -13,7 +13,7 @@ TypeScript implementation of Vuer RPC (vRPC) - a lightweight, cross-language mes
 ## Installation
 
 ```bash
-pnpm add @vuer-ai/vrpc
+pnpm add @vuer-ai/vuer-rpc
 ```
 
 ## Quick Start
@@ -21,7 +21,7 @@ pnpm add @vuer-ai/vrpc
 ### Basic Message Serialization
 
 ```typescript
-import { serialize, deserialize } from '@vuer-ai/vrpc';
+import { serialize, deserialize } from '@vuer-ai/vuer-rpc';
 
 // Create and serialize a message
 const message = {
@@ -37,7 +37,7 @@ const decoded = deserialize(binary);
 ### RPC Communication
 
 ```typescript
-import { RPCManager, serialize, deserialize } from '@vuer-ai/vrpc';
+import { RPCManager, serialize, deserialize } from '@vuer-ai/vuer-rpc';
 
 const rpcManager = new RPCManager();
 
@@ -66,7 +66,7 @@ websocket.on('message', (data) => {
 ### Custom ZData Types
 
 ```typescript
-import { registerZDataType, serialize, deserialize } from '@vuer-ai/vrpc';
+import { registerZDataType, serialize, deserialize } from '@vuer-ai/vuer-rpc';
 
 // Register a custom type for Date objects
 registerZDataType({
@@ -103,7 +103,7 @@ const decoded = deserialize(binary);
 ### React Integration
 
 ```typescript
-import { useMessageHandler, useRPC } from '@vuer-ai/vrpc';
+import { useMessageHandler, useRPC } from '@vuer-ai/vuer-rpc';
 import { useState, useEffect } from 'react';
 
 function VuerClient() {

@@ -1,7 +1,7 @@
 # VMP-RS: Rust Implementation of the Vuer Message Protocol
 
-[![Crates.io](https://img.shields.io/crates/v/vmp-rs.svg)](https://crates.io/crates/vmp-rs)
-[![Documentation](https://docs.rs/vmp-rs/badge.svg)](https://docs.rs/vmp-rs)
+[![Crates.io](https://img.shields.io/crates/v/vuer-rpc.svg)](https://crates.io/crates/vuer-rpc)
+[![Documentation](https://docs.rs/vuer-rpc/badge.svg)](https://docs.rs/vuer-rpc)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A lightweight, cross-language messaging and RPC protocol designed for use with Vuer and Zaku. This is the Rust implementation with full support for MessagePack serialization, extensible type systems, and async RPC.
@@ -22,19 +22,19 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-vmp-rs = "0.1"
+vuer-rpc = "0.1"
 
 # For async RPC support
-vmp-rs = { version = "0.1", features = ["tokio"] }
+vuer-rpc = { version = "0.1", features = ["tokio"] }
 
 # For all features including ndarray and image support
-vmp-rs = { version = "0.1", features = ["full"] }
+vuer-rpc = { version = "0.1", features = ["full"] }
 ```
 
 ## Quick Start
 
 ```rust
-use vmp_rs::prelude::*;
+use vuer_rpc::prelude::*;
 use serde_json::json;
 
 fn main() -> Result<()> {
@@ -104,7 +104,7 @@ let bytes = serialize_component(&scene)?;
 ## Async RPC (with Tokio)
 
 ```rust
-use vmp_rs::prelude::*;
+use vuer_rpc::prelude::*;
 use std::time::Duration;
 
 #[tokio::main]
@@ -131,7 +131,7 @@ async fn main() -> Result<()> {
 The type registry allows you to encode/decode custom types that may not have native Rust equivalents:
 
 ```rust
-use vmp_rs::prelude::*;
+use vuer_rpc::prelude::*;
 use serde_json::json;
 
 fn main() {
@@ -159,7 +159,7 @@ fn main() {
 ZData is a wrapper format for encoding types that don't have direct Rust equivalents (like NumPy arrays, PyTorch tensors, etc.):
 
 ```rust
-use vmp_rs::prelude::*;
+use vuer_rpc::prelude::*;
 
 // Create ZData for a custom type
 let zdata = ZData::new("custom.Type")
@@ -177,7 +177,7 @@ let bytes = serialize(&zdata)?;
 With the `ndarray` feature:
 
 ```rust
-use vmp_rs::prelude::*;
+use vuer_rpc::prelude::*;
 use ndarray::Array;
 
 #[cfg(feature = "ndarray")]
@@ -200,7 +200,7 @@ fn example() -> Result<()> {
 With the `image` feature:
 
 ```rust
-use vmp_rs::prelude::*;
+use vuer_rpc::prelude::*;
 use image::{DynamicImage, ImageFormat};
 
 #[cfg(feature = "image")]
@@ -217,7 +217,7 @@ fn example(img: DynamicImage) -> Result<()> {
 When a type is not available in the Rust environment, VMP-RS provides helpful error messages:
 
 ```rust
-use vmp_rs::prelude::*;
+use vuer_rpc::prelude::*;
 
 // This will return an error if the 'ndarray' feature is not enabled
 let result = decode_from_zdata::<NumpyArray<f32>>(&zdata);
@@ -329,7 +329,7 @@ See the [`examples/`](examples/) directory for complete working examples:
 
 ## Documentation
 
-- [API Documentation](https://docs.rs/vmp-rs)
+- [API Documentation](https://docs.rs/vuer-rpc)
 - [Protocol Specification](../README.md)
 - [Implementation Guide](../notes/IMPLEMENTATION_GUIDE.md)
 

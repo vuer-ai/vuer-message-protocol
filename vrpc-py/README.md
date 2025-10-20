@@ -1,4 +1,4 @@
-# vmp-py - Vuer Message Protocol (Python)
+# vuer-rpc - Vuer Message Protocol (Python)
 
 A lightweight, cross-language messaging and RPC protocol designed for use with Vuer and Zaku.
 
@@ -15,13 +15,13 @@ A lightweight, cross-language messaging and RPC protocol designed for use with V
 Using uv (recommended):
 
 ```bash
-uv pip install vmp-py
+uv pip install vuer-rpc
 ```
 
 Using pip:
 
 ```bash
-pip install vmp-py
+pip install vuer-rpc
 ```
 
 ### Optional Dependencies
@@ -30,22 +30,22 @@ Install with specific features:
 
 ```bash
 # For PyTorch support
-uv pip install "vmp-py[torch]"
+uv pip install "vuer-rpc[torch]"
 
 # For PIL/Pillow support
-uv pip install "vmp-py[image]"
+uv pip install "vuer-rpc[image]"
 
 # For safetensors support
-uv pip install "vmp-py[safetensors]"
+uv pip install "vuer-rpc[safetensors]"
 
 # For all extensions (torch, PIL, safetensors)
-uv pip install "vmp-py[extensions]"
+uv pip install "vuer-rpc[extensions]"
 
 # For development (includes pytest + all extensions)
-uv pip install "vmp-py[dev]"
+uv pip install "vuer-rpc[dev]"
 
 # Install everything
-uv pip install "vmp-py[all]"
+uv pip install "vuer-rpc[all]"
 ```
 
 ## Quick Start
@@ -114,7 +114,7 @@ print(decoded_event["data"]["data"])  # numpy array restored
 
 ## Optional Type Extensions
 
-vmp-py uses an extensible type registry system. NumPy is supported by default, but you can enable support for additional types by importing their extensions.
+vuer-rpc uses an extensible type registry system. NumPy is supported by default, but you can enable support for additional types by importing their extensions.
 
 ### Using PyTorch
 
@@ -209,7 +209,7 @@ decoded = ZData.decode(encoded)
 
 ### Extending the Registry in External Libraries
 
-Library authors can register their types with vmp-py's global `TYPE_REGISTRY`. This allows seamless integration without requiring users to manually register types.
+Library authors can register their types with vuer-rpc's global `TYPE_REGISTRY`. This allows seamless integration without requiring users to manually register types.
 
 **Example: Creating a VMP extension library**
 
@@ -261,7 +261,7 @@ decoded = ZData.decode(encoded)
 **Best practices for library authors:**
 
 1. **Use namespaced ztype names**: `"your_library.TypeName"` prevents collisions
-2. **Make VMP support optional**: Don't require vmp-py as a hard dependency
+2. **Make VMP support optional**: Don't require vuer-rpc as a hard dependency
 3. **Document the import**: Tell users to import your `vmp_support` module
 4. **Version your ztypes**: Use `"your_library.v1.TypeName"` if your format may change
 5. **Access TYPE_REGISTRY directly**: Import from `vmp_py.type_registry` for type hints
@@ -398,7 +398,7 @@ data = json_ser.decode(json_bytes)
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/vuer-message-protocol.git
-cd vuer-message-protocol/vmp-py
+cd vuer-message-protocol/vuer-rpc
 
 # Install with all dependencies
 uv sync --all-extras

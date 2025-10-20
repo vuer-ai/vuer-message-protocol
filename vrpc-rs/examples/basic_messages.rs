@@ -2,7 +2,7 @@
 //!
 //! Run with: cargo run --example basic_messages
 
-use vmp_rs::prelude::*;
+use vuer_rpc::prelude::*;
 use serde_json::json;
 
 fn main() -> Result<()> {

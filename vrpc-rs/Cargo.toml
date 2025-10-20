@@ -1,12 +1,12 @@
 [package]
-name = "vmp-rs"
+name = "vuer-rpc"
 version = "0.1.0"
 edition = "2024"
 authors = ["Ge Yang"]
 license = "MIT"
 description = "Rust implementation of the Vuer Message Protocol"
 repository = "https://github.com/vuer-ai/vuer-message-protocol"
-keywords = ["vmp", "vrpc", "messagepack", "rpc", "serialization"]
+keywords = ["vmp", "vuer", "vuer-rpc", "vrpc", "messagepack", "rpc", "serialization"]
 categories = ["encoding", "network-programming"]
 
 [dependencies]

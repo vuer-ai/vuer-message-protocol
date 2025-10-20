@@ -1,1 +1,1 @@
-"""Tests for vmp-py."""
+"""Tests for vuer-rpc."""
