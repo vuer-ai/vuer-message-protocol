@@ -4,7 +4,7 @@ Tests for ZData encoding/decoding and custom type registration.
 
 import pytest
 import numpy as np
-from vmp_py import ZData
+from vuer_vrpc import ZData
 
 
 def test_numpy_encode_decode():
@@ -49,7 +49,7 @@ def test_torch_encode_decode():
     """Test encoding and decoding of PyTorch tensors."""
     pytest.importorskip("torch")
     import torch
-    from vmp_py.extensions import torch_support  # noqa: F401
+    from vuer_vrpc.extensions import torch_support  # noqa: F401
 
     # Test 1D tensor
     tensor = torch.tensor([1, 2, 3, 4, 5])
@@ -77,7 +77,7 @@ def test_pil_image_encode_decode():
     """Test encoding and decoding of PIL images."""
     pytest.importorskip("PIL")
     from PIL import Image
-    from vmp_py.extensions import image_support  # noqa: F401
+    from vuer_vrpc.extensions import image_support  # noqa: F401
 
     # Create a simple RGB image
     img = Image.new('RGB', (100, 100), color='red')

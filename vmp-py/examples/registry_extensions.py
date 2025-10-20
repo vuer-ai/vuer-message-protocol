@@ -9,7 +9,7 @@ Demonstrates:
 """
 
 import numpy as np
-from vmp_py import ZData, TYPE_REGISTRY, MessagePackSerializer
+from vuer_vrpc import ZData, TYPE_REGISTRY, MessagePackSerializer
 
 
 def example_list_types():
@@ -24,7 +24,7 @@ def example_torch_extension():
 
     try:
         # Import extension to enable torch support
-        from vmp_py.extensions import torch_support  # noqa: F401
+        from vuer_vrpc.extensions import torch_support  # noqa: F401
         import torch
 
         print("✓ PyTorch extension loaded")
@@ -52,7 +52,7 @@ def example_image_extension():
     print("\n=== PIL Image Extension ===")
 
     try:
-        from vmp_py.extensions import image_support  # noqa: F401
+        from vuer_vrpc.extensions import image_support  # noqa: F401
         from PIL import Image
 
         print("✓ PIL extension loaded")
@@ -78,8 +78,8 @@ def example_safetensors_extension():
     print("\n=== Safetensors Extension ===")
 
     try:
-        from vmp_py.extensions import safetensors_support  # noqa: F401
-        from vmp_py.extensions.safetensors_support import encode_as_safetensor
+        from vuer_vrpc.extensions import safetensors_support  # noqa: F401
+        from vuer_vrpc.extensions.safetensors_support import encode_as_safetensor
 
         print("✓ Safetensors extension loaded")
 
@@ -211,7 +211,7 @@ def example_mixed_types_serialization():
 
     # Try to import all extensions
     try:
-        from vmp_py.extensions import torch_support, image_support  # noqa: F401
+        from vuer_vrpc.extensions import torch_support, image_support  # noqa: F401
         import torch
         from PIL import Image
 

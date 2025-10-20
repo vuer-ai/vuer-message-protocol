@@ -689,7 +689,7 @@ wheels = [
 ]
 
 [[package]]
-name = "vmp-py"
+name = "vuer-vrpc"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

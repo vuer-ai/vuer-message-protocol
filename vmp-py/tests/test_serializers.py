@@ -4,7 +4,7 @@ Tests for MessagePack and JSON serializers.
 
 import pytest
 import numpy as np
-from vmp_py import (
+from vuer_vrpc import (
     MessagePackSerializer,
     JSONSerializer,
     set_event,
@@ -86,7 +86,7 @@ def test_msgpack_with_torch():
     """Test MessagePack with PyTorch tensors."""
     pytest.importorskip("torch")
     import torch
-    from vmp_py.extensions import torch_support  # noqa: F401
+    from vuer_vrpc.extensions import torch_support  # noqa: F401
 
     serializer = MessagePackSerializer(greedy=True)
 

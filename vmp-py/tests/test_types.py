@@ -3,7 +3,7 @@ Tests for message types and event creation.
 """
 
 import pytest
-from vmp_py import (
+from vuer_vrpc import (
     create_client_event,
     create_server_event,
     create_rpc_request,
