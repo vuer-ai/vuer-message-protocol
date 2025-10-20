@@ -9,7 +9,7 @@ Demonstrates:
 """
 
 import numpy as np
-from vmp_py import (
+from vuer_vrpc import (
     ZData,
     MessagePackSerializer,
     set_event,

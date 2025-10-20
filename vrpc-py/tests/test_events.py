@@ -3,7 +3,7 @@ Tests for event factory functions.
 """
 
 import pytest
-from vmp_py import (
+from vuer_vrpc import (
     set_event,
     add_event,
     update_event,
