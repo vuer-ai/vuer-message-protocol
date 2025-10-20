@@ -1,0 +1,48 @@
+# Rust build artifacts
+/target/
+Cargo.lock
+
+# Generated documentation
+/doc/
+
+# Backup files
+*.bak
+*.swp
+*.swo
+*~
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.iml
+.DS_Store
+
+# Test coverage
+*.profraw
+*.profdata
+/coverage/
+
+# Cargo
+**/*.rs.bk
+*.pdb
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Development/temporary files
+/tmp/
+*.tmp

@@ -7,10 +7,11 @@ A lightweight, cross-language messaging and RPC protocol designed used by vuer a
 ```
 vuer-message-protocol/
 ├── README.md
-├── vmp-ts/           # TypeScript implementation
-├── vmp-py/           # Python implementation, uses uv
-├── vmp-swift/        # Swift implementation
-├── vmp-cpp/          # C++ implementation
+├── vrpc-ts/          # TypeScript implementation
+├── vrpc-py/          # Python implementation, uses uv
+├── vrpc-rs/          # Rust implementation, uses cargo
+├── vrpc-swift/       # Swift implementation (planned)
+├── vrpc-cpp/         # C++ implementation (planned)
 └── protocol/         # Shared protocol definitions
 ```
 
