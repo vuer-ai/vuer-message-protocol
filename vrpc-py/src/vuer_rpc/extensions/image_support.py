@@ -16,7 +16,7 @@ except ImportError:
     PIL_AVAILABLE = False
     raise ImportError(
         "Pillow is not installed. Install it with: "
-        "uv pip install 'vmp-py[image]' or pip install Pillow"
+        "uv pip install 'vuer-rpc[image]' or pip install Pillow"
     )
 
 

@@ -1,5 +1,5 @@
 """
-Basic usage examples for vmp-py.
+Basic usage examples for vuer-rpc.
 
 Demonstrates:
 - ZData encoding/decoding
@@ -9,7 +9,7 @@ Demonstrates:
 """
 
 import numpy as np
-from vuer_vrpc import (
+from vuer_rpc import (
     ZData,
     MessagePackSerializer,
     set_event,

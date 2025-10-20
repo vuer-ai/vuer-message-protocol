@@ -1,5 +1,5 @@
 [project]
-name = "vuer-vrpc"
+name = "vuer-rpc"
 version = "0.1.0"
 description = "Vuer RPC (vRPC) - Python implementation for cross-language messaging and RPC"
 readme = "README.md"
@@ -52,7 +52,7 @@ addopts = [
 ]
 
 [tool.coverage.run]
-source = ["vuer_vrpc"]
+source = ["vuer_rpc"]
 omit = ["*/tests/*"]
 
 [tool.coverage.report]

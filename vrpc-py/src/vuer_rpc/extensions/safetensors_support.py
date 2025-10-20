@@ -17,7 +17,7 @@ except ImportError:
     SAFETENSORS_AVAILABLE = False
     raise ImportError(
         "Safetensors is not installed. Install it with: "
-        "uv pip install 'vmp-py[safetensors]' or pip install safetensors"
+        "uv pip install 'vuer-rpc[safetensors]' or pip install safetensors"
     )
 
 

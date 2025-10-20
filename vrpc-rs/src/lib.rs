@@ -15,7 +15,7 @@
 //! # Quick Start
 //!
 //! ```rust
-//! use vmp_rs::prelude::*;
+//! use vuer_rpc::prelude::*;
 //! use serde_json::json;
 //!
 //! // Create a message
@@ -32,7 +32,7 @@
 //! # RPC Example
 //!
 //! ```rust,ignore
-//! use vmp_rs::prelude::*;
+//! use vuer_rpc::prelude::*;
 //! use std::time::Duration;
 //!
 //! #[tokio::main]
@@ -56,7 +56,7 @@
 //! # Custom Types
 //!
 //! ```rust
-//! use vmp_rs::prelude::*;
+//! use vuer_rpc::prelude::*;
 //! use serde_json::json;
 //!
 //! // Register a custom type

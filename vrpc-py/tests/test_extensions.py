@@ -4,7 +4,7 @@ Tests for optional type extensions (torch, PIL, safetensors).
 
 import pytest
 import numpy as np
-from vuer_vrpc import ZData, TYPE_REGISTRY
+from vuer_rpc import ZData, TYPE_REGISTRY
 
 
 def test_list_registered_types():
@@ -18,7 +18,7 @@ def test_torch_extension():
     """Test torch extension can be imported and works."""
     pytest.importorskip("torch")
     import torch
-    from vuer_vrpc.extensions import torch_support  # noqa: F401
+    from vuer_rpc.extensions import torch_support  # noqa: F401
 
     # Check type is registered
     assert "torch.Tensor" in ZData.list_types()
@@ -37,7 +37,7 @@ def test_image_extension():
     """Test PIL image extension can be imported and works."""
     pytest.importorskip("PIL")
     from PIL import Image
-    from vuer_vrpc.extensions import image_support  # noqa: F401
+    from vuer_rpc.extensions import image_support  # noqa: F401
 
     # Check type is registered
     assert "image" in ZData.list_types()
@@ -55,8 +55,8 @@ def test_image_extension():
 def test_safetensors_extension():
     """Test safetensors extension can be imported and works."""
     pytest.importorskip("safetensors")
-    from vuer_vrpc.extensions import safetensors_support
-    from vuer_vrpc.extensions.safetensors_support import encode_as_safetensor
+    from vuer_rpc.extensions import safetensors_support
+    from vuer_rpc.extensions.safetensors_support import encode_as_safetensor
 
     # Check type is registered
     assert "safetensor.dict" in ZData.list_types()
@@ -111,8 +111,8 @@ def test_multiple_extensions_together():
     pytest.importorskip("safetensors")
 
     from PIL import Image
-    from vuer_vrpc.extensions import torch_support, image_support, safetensors_support  # noqa: F401, F811
-    from vuer_vrpc.extensions.safetensors_support import encode_as_safetensor
+    from vuer_rpc.extensions import torch_support, image_support, safetensors_support  # noqa: F401, F811
+    from vuer_rpc.extensions.safetensors_support import encode_as_safetensor
 
     # Create mixed data
     data = {

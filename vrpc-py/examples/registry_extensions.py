@@ -1,5 +1,5 @@
 """
-Advanced registry and extensions examples for vmp-py.
+Advanced registry and extensions examples for vuer-rpc.
 
 Demonstrates:
 - Using optional type extensions (torch, PIL, safetensors)
@@ -9,7 +9,7 @@ Demonstrates:
 """
 
 import numpy as np
-from vuer_vrpc import ZData, TYPE_REGISTRY, MessagePackSerializer
+from vuer_rpc import ZData, TYPE_REGISTRY, MessagePackSerializer
 
 
 def example_list_types():
@@ -24,7 +24,7 @@ def example_torch_extension():
 
     try:
         # Import extension to enable torch support
-        from vuer_vrpc.extensions import torch_support  # noqa: F401
+        from vuer_rpc.extensions import torch_support  # noqa: F401
         import torch
 
         print("✓ PyTorch extension loaded")
@@ -44,7 +44,7 @@ def example_torch_extension():
         print("✓ Round-trip successful!")
 
     except ImportError:
-        print("⚠ PyTorch not installed. Install with: uv pip install 'vmp-py[torch]'")
+        print("⚠ PyTorch not installed. Install with: uv pip install 'vuer-rpc[torch]'")
 
 
 def example_image_extension():
@@ -52,7 +52,7 @@ def example_image_extension():
     print("\n=== PIL Image Extension ===")
 
     try:
-        from vuer_vrpc.extensions import image_support  # noqa: F401
+        from vuer_rpc.extensions import image_support  # noqa: F401
         from PIL import Image
 
         print("✓ PIL extension loaded")
@@ -70,7 +70,7 @@ def example_image_extension():
         print("✓ Round-trip successful!")
 
     except ImportError:
-        print("⚠ PIL not installed. Install with: uv pip install 'vmp-py[image]'")
+        print("⚠ PIL not installed. Install with: uv pip install 'vuer-rpc[image]'")
 
 
 def example_safetensors_extension():
@@ -78,8 +78,8 @@ def example_safetensors_extension():
     print("\n=== Safetensors Extension ===")
 
     try:
-        from vuer_vrpc.extensions import safetensors_support  # noqa: F401
-        from vuer_vrpc.extensions.safetensors_support import encode_as_safetensor
+        from vuer_rpc.extensions import safetensors_support  # noqa: F401
+        from vuer_rpc.extensions.safetensors_support import encode_as_safetensor
 
         print("✓ Safetensors extension loaded")
 
@@ -109,7 +109,7 @@ def example_safetensors_extension():
         print("✓ Round-trip successful!")
 
     except ImportError:
-        print("⚠ Safetensors not installed. Install with: uv pip install 'vmp-py[safetensors]'")
+        print("⚠ Safetensors not installed. Install with: uv pip install 'vuer-rpc[safetensors]'")
 
 
 def example_custom_type():
@@ -211,7 +211,7 @@ def example_mixed_types_serialization():
 
     # Try to import all extensions
     try:
-        from vuer_vrpc.extensions import torch_support, image_support  # noqa: F401
+        from vuer_rpc.extensions import torch_support, image_support  # noqa: F401
         import torch
         from PIL import Image
 
@@ -243,7 +243,7 @@ def example_mixed_types_serialization():
 
     except ImportError as e:
         print(f"⚠ Some extensions not available: {e}")
-        print("  Install with: uv pip install 'vmp-py[all]'")
+        print("  Install with: uv pip install 'vuer-rpc[all]'")
 
 
 def main():

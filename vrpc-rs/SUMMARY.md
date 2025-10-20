@@ -74,7 +74,7 @@ Successfully implemented a full-featured Rust version of the Vuer Message Protoc
 ## Package Structure
 
 ```
-vmp-rs/
+vuer-rpc/
 ├── Cargo.toml                  # Dependencies and features
 ├── README.md                   # User-facing documentation
 ├── SUMMARY.md                  # This file
