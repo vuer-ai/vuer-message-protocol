@@ -1,7 +1,7 @@
 [project]
-name = "vmp-py"
+name = "vrpc"
 version = "0.1.0"
-description = "Vuer Message Protocol - Python implementation for cross-language messaging and RPC"
+description = "Vuer RPC (vRPC) - Python implementation for cross-language messaging and RPC"
 readme = "README.md"
 authors = [
     { name = "Ge Yang", email = "ge.ike.yang@gmail.com" }
@@ -52,7 +52,7 @@ addopts = [
 ]
 
 [tool.coverage.run]
-source = ["vmp_py"]
+source = ["vrpc"]
 omit = ["*/tests/*"]
 
 [tool.coverage.report]
