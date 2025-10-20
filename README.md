@@ -10,7 +10,7 @@ vuer-message-protocol/
 ├── vrpc-ts/          # TypeScript implementation
 ├── vrpc-py/          # Python implementation, uses uv
 ├── vrpc-rs/          # Rust implementation, uses cargo
-├── vrpc-swift/       # Swift implementation (planned)
+├── vrpc-swift/       # Swift implementation, uses SPM
 ├── vrpc-cpp/         # C++ implementation (planned)
 └── protocol/         # Shared protocol definitions
 ```
