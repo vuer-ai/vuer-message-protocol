@@ -1,0 +1,66 @@
+[project]
+name = "vmp-py"
+version = "0.1.0"
+description = "Vuer Message Protocol - Python implementation for cross-language messaging and RPC"
+readme = "README.md"
+authors = [
+    { name = "Ge Yang", email = "ge.ike.yang@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "msgpack>=1.0.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+torch = ["torch>=2.0.0"]
+image = ["Pillow>=10.0.0"]
+safetensors = ["safetensors>=0.4.0"]
+extensions = [
+    "torch>=2.0.0",
+    "Pillow>=10.0.0",
+    "safetensors>=0.4.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "torch>=2.0.0",
+    "Pillow>=10.0.0",
+    "safetensors>=0.4.0",
+]
+all = [
+    "torch>=2.0.0",
+    "Pillow>=10.0.0",
+    "safetensors>=0.4.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.3,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--strict-config",
+]
+
+[tool.coverage.run]
+source = ["vmp_py"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
